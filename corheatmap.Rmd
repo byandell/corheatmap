@@ -1,0 +1,45 @@
+---
+title: "cor heat map"
+author: "Brian S Yandell"
+date: "August 23, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I just added links to the bottom of the Mark Keller Google doc,
+https://docs.google.com/document/d/1Q6iPsstBe9LXV1JMLrktHGPvb9DUOcgfPswSYC9F7nM
+
+
+We talked about the d3heatmap package. See 
+http://www.htmlwidgets.org/showcase_d3heatmap.html
+And download the package. Try it with mtcars.
+
+Our goal is to use this package with some extra stuff around it,  such as:
+
+* use file.choose() to choose file name and then read in file; file might be CSV or XLSX (as attached); use MIME ending on file name to decide, then use readr or readxl package to read data.
+* Handle missing data in proper way using use=“pairwise.complete.obs” on cor(); see attached yandellcluster.R script
+* Use d3HeatMap with Color Brewer. The d3HeatMap code is set up to use Color Brewer, which provides color-blind friendly pallets. I envision something like an argument for color with multiple choices on a Shiny page.
+
+Think about what output user might want from this as well
+
+We’re going to be getting lots of data from the Coon group, first on the founder samples, and then on the DO samples. I would like to have a program that I could use to perform hierarchical clustering and then output a PDF figure that I can play with in Illustrator, and an excel sheet containing the clustered data. I’ve used little script (attached) to do this, however, it often has problems, and it doesn’t generate the heatmap figure, only the clustered output file for excel.
+ 
+Specifically, I would like to:
+
+* Cluster the data, both rows and columns;
+* Generate a heat map with the clustering trees shown for rows and columns;
+* Choose the color scheme to be used for the heat map;
+* Not have problems if there is missing data, as there usually is always missing data in these large data sets;
+* Not have problems if there are matching names for either some of the rows or columns;
+* Output an excel file with the data ordered as in the heat map so that I can find row/columns highlighted as being different in the heat map;
+* Output a PDF for the figure so that I can play with it in Illustrator;
+* Choose to show, or not the names for the rows; e.g., often there are >5000 rows, so the name bunch together and become illegible;
+* Choose to show, or not the names for the columns; I usually organize the data so that the columns are mice, so this isn’t much of a problem, however, with 500 DO mice it will probably become so;
+ 
+I have also included the little script you generated during that one session. And, I have included a data matrix for ~4,500 proteins measured in the islets of 57 mice. The values in the matrix are the Log2 of the abundance values for the proteins measured by mass spectrometry.
+ 
+I’d like to use this example to generate a heat map where we clustering the proteins and mice. Protein names are listed in ColA, with the 57 mice listed in Col’s B – BF.
+ 
