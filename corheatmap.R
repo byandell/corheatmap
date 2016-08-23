@@ -9,6 +9,8 @@
 #' @export
 corHeatmap <- function(input, output, session) {
   ns <- session$ns
+  
+  ## Set up palettes using RColorBrewer::brewer.pal.info
   palettes <- reactive({
     cat <- req(input$category)
     cats <- c(divergent="div",qualitative="qual",sequential="seq")
@@ -21,19 +23,27 @@ corHeatmap <- function(input, output, session) {
     selectInput(ns("palette"), "Palette", palettes())
   })
   
+  ## Read in file with name supplied by user.
   file_mx <- reactive({
     file_nm <- req(input$file)
     numrow <- as.integer(req(input$numrow))
+    
     out <- switch(file_nm$type,
            ".csv" =, "text/csv" =, 'text/comma-separated-values' =
              read.csv(file_nm$datapath),
            ".tsv" =, 'text/tab-separated-values' = 
-             read.csv(file_nm$datapath, sep="\t"))
+             read.csv(file_nm$datapath, sep="\t"),
+           {
+             cat(stderr(), "only CSV and TSV files accepted\n")
+           })
+    
     ## Move first column into row names.
     row.names(out) <- paste(seq_len(nrow(out)), out[[1]], sep = ".")
     out <- out[,-1]
+    
     ## Eliminate rows with half or more missing.
     out <- out[apply(out, 1, function(x) sum(is.na(x))) < ncol(out) / 2, ]
+    
     ## Restrict to first 100 entries
     out[seq_len(numrow),]
 })
