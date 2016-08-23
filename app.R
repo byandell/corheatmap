@@ -8,7 +8,7 @@ dist_fun <- function(x) {
 }
 
 ui <- fluidPage(
-  h1("A heatmap demo"),
+  h1("Heatmap using Correlation"),
   checkboxInput("cluster", "Apply clustering"),
   corHeatmapUI("cor"),
   d3heatmapOutput("heatmap")

@@ -22,27 +22,21 @@ corHeatmap <- function(input, output, session) {
   })
   
   file_mx <- reactive({
-    browser()
     file_nm <- req(input$file)
     numrow <- as.integer(req(input$numrow))
-    switch(file_nm$type,
+    out <- switch(file_nm$type,
            ".csv" =, "text/csv" =, 'text/comma-separated-values' =
-             read.csv(file_nm$datapath, row.names=1),
+             read.csv(file_nm$datapath),
            ".tsv" =, 'text/tab-separated-values' = 
-             read.csv(file_nm$datapath, sep="\t", row.names=1),
-           ".xls" =, ".xlsx" =, 
-           "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" = {
-             browser()
-             out <- read_excel(file_nm$datapath)
-             ## Move first column into row names.
-             row.names(out) <- paste(seq_len(nrow(out)), out[[1]], sep = ".")
-             out <- out[,-1]
-             ## Eliminate rows with half or more missing.
-             out <- out[apply(out, 1, function(x) sum(is.na(x))) < ncol(out) / 2, ]
-             ## Restrict to first 100 entries
-             out[seq_len(numrow),]
-           })
-  })
+             read.csv(file_nm$datapath, sep="\t"))
+    ## Move first column into row names.
+    row.names(out) <- paste(seq_len(nrow(out)), out[[1]], sep = ".")
+    out <- out[,-1]
+    ## Eliminate rows with half or more missing.
+    out <- out[apply(out, 1, function(x) sum(is.na(x))) < ncol(out) / 2, ]
+    ## Restrict to first 100 entries
+    out[seq_len(numrow),]
+})
   
   list(palette = reactive({input$palette}),
        file = file_mx)
@@ -55,7 +49,7 @@ corHeatmapUI <- function(id) {
     fluidPage(
       fileInput(ns("file"), "Choose File", 
                 accept=c(".csv",".tsv",".xlsx",".xls")),
-      textInput(ns("numrow"), "Number of Rows", "100"),
+      textInput(ns("numrow"), "Number of Rows", "500"),
       uiOutput(ns("palette")),
       selectInput(ns("category"), "Type", 
                   c("divergent","qualitative","sequential","all")))
