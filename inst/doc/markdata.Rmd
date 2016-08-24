@@ -20,17 +20,14 @@ mark <- mark[apply(mark, 1, function(x) sum(is.na(x))) < ncol(mark) / 2, ]
 ```
 
 ```{r}
-library(d3heatmap)
-dist_fun <- function(x) {
-  as.dist((1 - cor(t(x), use = "pairwise.complete.obs")) / 2)
-}
-
+library(corheatmap)
+dist_fun <- function(x) dist_cor(x, 1)
 d3heatmap(mark[seq(100),], scale = "column", colors = "Blues",
-      distfun = dist_fun,
-      dendrogram = "both")
+      distfun = dist_fun, labCol = rep("",ncol(mark)), labRow=rep("",100),
+      dendrogram = "both", xaxis_height = 0)
 ```
 
 ```{r}
 heatmap(as.matrix(mark[seq(100),]), scale = "column",
         distfun = dist_fun, col = brewer.pal(8, "Blues"),
-        Rowv=NA, Colv=NA)
+        Rowv=NA, Colv=NA, labRow=NA, labCol=NA)
