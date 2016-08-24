@@ -2,12 +2,14 @@
 #'
 #'
 #' @param input,output,session standard shiny arguments
+#' @param cluster reactive arguments
 #'
 #' @author Brian S Yandell, \email{brian.yandell@@wisc.edu}
 #' @keywords utilities
 #'
 #' @export
-corHeatmap <- function(input, output, session) {
+corHeatmap <- function(input, output, session, 
+                       cluster) {
   ns <- session$ns
   
   ## Set up palettes using RColorBrewer::brewer.pal.info
@@ -35,7 +37,10 @@ corHeatmap <- function(input, output, session) {
              read.csv(file_nm$datapath, sep="\t"),
            {
              cat(stderr(), "only CSV and TSV files accepted\n")
+             NULL
            })
+    if(!nrow(out))
+      return(NULL)
     
     ## Move first column into row names.
     row.names(out) <- paste(seq_len(nrow(out)), out[[1]], sep = ".")
@@ -43,10 +48,58 @@ corHeatmap <- function(input, output, session) {
     
     ## Eliminate rows with half or more missing.
     out <- out[apply(out, 1, function(x) sum(is.na(x))) < ncol(out) / 2, ]
+    if(!nrow(out))
+      return(NULL)
     
-    ## Restrict to first 100 entries
-    out[seq_len(numrow),]
-})
+    ## Order by decreasing variability.
+    out <- out[-apply(out,1,var, na.rm=TRUE),]
+    
+    ## Restrict to first numrow entries
+    out <- out[seq_len(min(numrow, nrow(out))),]
+    if(!nrow(out))
+      out <- NULL
+    
+    out
+  })
+  
+  output$downloadPlot <- downloadHandler(
+    filename = function() {
+      file.path(str_replace(basename(req(input$file$name)), 
+                            "\\.[tc]sv", ".pdf")) },
+    content = function(file) {
+      dat <- as.matrix(req(file_mx()))
+      pal <- req(input$palette)
+      clus.type <- req(cluster())
+      if(is.logical(clus.type))
+        clus.type <- c("none","both")[1 + clus.type]
+      switch(clus.type,
+             none = {
+               Rowv <- Colv <- NA
+             },
+             row = {
+               Rowv <- NULL
+               Colv <- NA
+             },
+             row = {
+               Rowv <- NA
+               Colv <- NULL
+             },
+             {
+               Rowv <- Colv <- NULL
+             }
+             )
+      dist_fun <- function(x) {
+        as.dist((1 - cor(t(x), use = "pairwise.complete.obs")) / 2)
+      }
+      pdf(file)
+      heatmap(dat, scale = "column",
+              distfun = dist_fun, 
+              col = brewer.pal(brewer.pal.info[pal,"maxcolors"], pal),
+              Rowv=Rowv, Colv=Colv)
+      dev.off()
+    }
+  )
+  
   
   list(palette = reactive({input$palette}),
        file = file_mx)
@@ -59,9 +112,10 @@ corHeatmapUI <- function(id) {
     fluidPage(
       fileInput(ns("file"), "Choose File", 
                 accept=c(".csv",".tsv",".xlsx",".xls")),
-      textInput(ns("numrow"), "Number of Rows", "500"),
+      textInput(ns("numrow"), "Most Variable Rows", "200"),
       uiOutput(ns("palette")),
-      selectInput(ns("category"), "Type", 
-                  c("divergent","qualitative","sequential","all")))
+      selectInput(ns("category"), "Palette Type", 
+                  c("divergent","qualitative","sequential","all")),
+      downloadButton(ns("downloadPlot"), "Plot"))
   )
 }

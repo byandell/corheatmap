@@ -25,7 +25,12 @@ dist_fun <- function(x) {
   as.dist((1 - cor(t(x), use = "pairwise.complete.obs")) / 2)
 }
 
-d3heatmap(mark, scale = "column", colors = "Blues",
+d3heatmap(mark[seq(100),], scale = "column", colors = "Blues",
       distfun = dist_fun,
       dendrogram = "both")
 ```
+
+```{r}
+heatmap(as.matrix(mark[seq(100),]), scale = "column",
+        distfun = dist_fun, col = brewer.pal(8, "Blues"),
+        Rowv=NA, Colv=NA)
