@@ -172,7 +172,7 @@ corHeatmapUI <- function(id) {
       fileInput(ns("file"), "Choose File", 
                 accept=c(".csv",".tsv",".xlsx",".xls")),
       fluidRow(
-        column(6, textInput(ns("numrow"), "# Rows", "200")),
+        column(6, textInput(ns("numrow"), "Hi Var Rows", "200")),
         column(6, selectInput(ns("height"), "Height", 
                   c("400","500","600","700","800","900","1000"),
                   "600"))),
@@ -181,7 +181,9 @@ corHeatmapUI <- function(id) {
         column(6, checkboxInput(ns("colname"), "Col Names", TRUE))),
       fluidRow(
         column(6, checkboxInput(ns("cluster"), "Cluster", TRUE)),
-        column(6, textInput(ns("beta"), "Beta", "1"))),
+        column(6, selectInput(ns("beta"), "(1-cor)^beta", 
+                              as.character(c(.1,.2,.3,.5,1,2,3,4,5,6)),
+                              "1"))),
       fluidRow(
         column(6, uiOutput(ns("palette"))),
         column(6, selectInput(ns("category"), "Palette Type", 

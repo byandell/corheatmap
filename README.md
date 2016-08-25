@@ -11,13 +11,17 @@ Use by the following sequence (once package is installed):
 corheatmap::heatmapApp()
 ```
 
+### Installing the Package
+
 To install the package, first install `devtools`:
 
 ```
 install.packages("devtools")
 ```
 
-Then type the following:
+On Windows, you also need [Rtools](http://cran.r-project.org/bin/windows/Rtools/). See [https://www.rstudio.com/products/rpackages/devtools/](https://www.rstudio.com/products/rpackages/devtools/) for details.
+
+To install the package `corheatmap`, type the following:
 
 ```
 library(devtools)
