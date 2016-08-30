@@ -80,7 +80,7 @@ corHeatmap <- function(input, output, session) {
   ## Interactive D3 Heatmap.
   output$d3heatmap <- renderD3heatmap({
     pal <- req(input$palette)
-    dat <- file_mx()
+    dat <- req(file_mx())
     if(input$rowname) {
       labRow <- rownames(dat)
       yaxis_width = 120

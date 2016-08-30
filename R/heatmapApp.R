@@ -7,5 +7,5 @@
 #'
 #' @export
 heatmapApp <- function() {
-  runApp(system.file("corheatmap/", package = "corheatmap"))
+  shiny::runApp(system.file("corheatmap/", package = "corheatmap"))
 }

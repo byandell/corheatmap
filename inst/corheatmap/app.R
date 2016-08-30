@@ -1,3 +1,4 @@
+library(shiny)
 library(corheatmap)
 
 ui <- fluidPage(
