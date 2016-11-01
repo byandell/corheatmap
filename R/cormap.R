@@ -10,10 +10,10 @@
 #' @keywords utilities
 #'
 #' @examples
-#' cormap(mtcars)
+#' corheatmap(mtcars)
 #'
 #' @export
-cormap <- function(df, row_names = is.null(rownames(df)), 
+corheatmap <- function(df, row_names = is.null(rownames(df)), 
                    cluster = TRUE, beta = 1, num_rows = 500) {
   
   ## Set up row names for matrix
@@ -56,7 +56,7 @@ cormap <- function(df, row_names = is.null(rownames(df)),
   
   attr(df, "beta") <- beta
   attr(df, "cluster") <- cluster
-  class(df) <- c("cormap", class(df))
+  class(df) <- c("corheatmap", class(df))
   df
 }
 #' @param rowname include row names in plot if \code{TRUE}
@@ -69,12 +69,12 @@ cormap <- function(df, row_names = is.null(rownames(df)),
 #' @param ... other plot parameters (ignored)
 #' 
 #' @examples
-#' plot(cormap(mtcars), d3map=FALSE)
+#' plot(corheatmap(mtcars), d3map=FALSE)
 #' 
 #' @export
-#' @method plot cormap
-#' @rdname cormap
-plot.cormap <- function(x, 
+#' @method plot corheatmap
+#' @rdname corheatmap
+plot.corheatmap <- function(x, 
                         rowname = TRUE, colname = TRUE,
                         cluster = attr(x, "cluster"), 
                         beta = attr(x, "beta"),
