@@ -8,5 +8,11 @@
 #'
 #' @export
 dist_cor <- function(x, beta = 1) {
+  if(!is.numeric(beta))
+    beta <- 1
+  if(beta < 0)
+    beta <- 1
+  if(beta > 6)
+    beta <- 6
   as.dist(((1 - cor(t(x), use = "pairwise.complete.obs")) / 2) ^ beta)
 }

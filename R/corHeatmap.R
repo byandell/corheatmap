@@ -44,38 +44,18 @@ corHeatmap <- function(input, output, session) {
     out <- req(file_in())
     numrow <- as.integer(req(input$numrow))
     
-    ## Move first column into row names.
-    row.names(out) <- paste(seq_len(nrow(out)), out[[1]], sep = ".")
-    out <- out[,-1]
+    out <- cormap(out, row_names = 1, 
+                  cluster = FALSE, beta = 1, num_rows = numrow)
     
-    ## Eliminate rows with half or more missing.
-    out <- out[apply(out, 1, function(x) sum(is.na(x))) < ncol(out) / 2, ]
-    if(!nrow(out)) {
-      cat(stderr(), "\nall rows have missing data\n")
+    if(!nrow(out) | is.null(out)) {
+      cat(stderr(), "\nno data rows to plot\n")
       return(NULL)
     }
-    
-    ## Order by decreasing variability.
-    out <- out[-apply(out,1,var, na.rm=TRUE),]
-    
-    ## Restrict to first numrow entries
-    nout <- min(numrow, nrow(out))
-    if(nout < 5) {
-      cat(stderr(), "\nmust have at least 5 rows with little missing data\n")
-      return(NULL)
-    }
-    as.matrix(out[seq_len(nout),])
+    out
   })
 
   dist_fun <- function(x) {
-    beta <- as.numeric(req(input$beta))
-    if(!is.numeric(beta))
-      beta <- 1
-    if(beta < 0)
-      beta <- 1
-    if(beta > 6)
-      beta <- 6
-    dist_cor(x, beta)
+    dist_cor(x, as.numeric(req(input$beta)))
   }
   ## Interactive D3 Heatmap.
   output$d3heatmap <- renderD3heatmap({
@@ -158,7 +138,6 @@ corHeatmap <- function(input, output, session) {
               col = brewer.pal(brewer.pal.info[pal,"maxcolors"], pal),
               Rowv=Rowv, Colv=Colv, labRow=labRow, labCol=labCol)
       dev.off()
-      heatmap_obj <- reactive({out})
     }
   )
 }
