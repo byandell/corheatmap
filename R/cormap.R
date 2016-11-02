@@ -10,10 +10,10 @@
 #' @keywords utilities
 #'
 #' @examples
-#' corheatmap(mtcars)
+#' cormap(mtcars)
 #'
 #' @export
-corheatmap <- function(df, row_names = is.null(rownames(df)), 
+cormap <- function(df, row_names = is.null(rownames(df)), 
                    cluster = TRUE, beta = 1, num_rows = 500) {
   
   ## Set up row names for matrix
@@ -43,7 +43,7 @@ corheatmap <- function(df, row_names = is.null(rownames(df)),
     stop("all rows have missing data")
 
   ## Order by decreasing variability.
-  df <- df[-apply(df, 1, var, na.rm=TRUE),]
+  df <- df[order(-apply(df, 1, var, na.rm=TRUE)),]
   
   ## Restrict to first numrow entries
   nout <- min(num_rows, nrow(df))
@@ -56,7 +56,7 @@ corheatmap <- function(df, row_names = is.null(rownames(df)),
   
   attr(df, "beta") <- beta
   attr(df, "cluster") <- cluster
-  class(df) <- c("corheatmap", class(df))
+  class(df) <- c("cormap", class(df))
   df
 }
 #' @param rowname include row names in plot if \code{TRUE}
@@ -69,12 +69,12 @@ corheatmap <- function(df, row_names = is.null(rownames(df)),
 #' @param ... other plot parameters (ignored)
 #' 
 #' @examples
-#' plot(corheatmap(mtcars), d3map=FALSE)
+#' plot(cormap(mtcars), d3map=FALSE)
 #' 
 #' @export
-#' @method plot corheatmap
-#' @rdname corheatmap
-plot.corheatmap <- function(x, 
+#' @method plot cormap
+#' @rdname cormap
+plot.cormap <- function(x, 
                         rowname = TRUE, colname = TRUE,
                         cluster = attr(x, "cluster"), 
                         beta = attr(x, "beta"),
