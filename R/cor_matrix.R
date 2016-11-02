@@ -10,10 +10,10 @@
 #' @keywords utilities
 #'
 #' @examples
-#' cormap(mtcars)
+#' cor_matrix(mtcars)
 #'
 #' @export
-cormap <- function(df, row_names = is.null(rownames(df)), 
+cor_matrix <- function(df, row_names = is.null(rownames(df)), 
                    cluster = TRUE, beta = 1, num_rows = 500) {
   
   ## Set up row names for matrix
@@ -56,7 +56,7 @@ cormap <- function(df, row_names = is.null(rownames(df)),
   
   attr(df, "beta") <- beta
   attr(df, "cluster") <- cluster
-  class(df) <- c("cormap", class(df))
+  class(df) <- c("cor_matrix", class(df))
   df
 }
 #' @param rowname include row names in plot if \code{TRUE}
@@ -69,12 +69,12 @@ cormap <- function(df, row_names = is.null(rownames(df)),
 #' @param ... other plot parameters (ignored)
 #' 
 #' @examples
-#' plot(cormap(mtcars), d3map=FALSE)
+#' plot(cor_matrix(mtcars), d3map=FALSE)
 #' 
 #' @export
-#' @method plot cormap
-#' @rdname cormap
-plot.cormap <- function(x, 
+#' @method plot cor_matrix
+#' @rdname cor_matrix
+plot.cor_matrix <- function(x, 
                         rowname = TRUE, colname = TRUE,
                         cluster = attr(x, "cluster"), 
                         beta = attr(x, "beta"),
@@ -137,11 +137,12 @@ plot.cormap <- function(x,
       labCol <- NA
       margins[1] <- 0
     }
-    heatmap(x, scale = "column",
+    heatmap(x, scale = "none",
             distfun = dist_fun, 
             na.rm = FALSE,
             margins = margins,
             col = brewer.pal(brewer.pal.info[palette,"maxcolors"], palette),
+            revC = FALSE,
             Rowv=Rowv, Colv=Colv, labRow=labRow, labCol=labCol)
   }
 }
