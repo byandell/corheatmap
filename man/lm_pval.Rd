@@ -4,7 +4,8 @@
 \alias{lm_pval}
 \title{anova p-values grouped by column}
 \usage{
-lm_pval(object, form, group = NULL, type = c("drop1", "anova"))
+lm_pval(object, form, group = NULL, type = c("drop1", "anova"),
+  inter = TRUE, digits = 3)
 }
 \arguments{
 \item{object}{data.frame or tbl_df}
@@ -14,6 +15,10 @@ lm_pval(object, form, group = NULL, type = c("drop1", "anova"))
 \item{group}{column to group by (or not if \code{NULL})}
 
 \item{type}{type of p-values (one of c("drop1","anova"))}
+
+\item{inter}{test for interactions if \code{TRUE}}
+
+\item{digits}{number of significant digits (default \code{3})}
 }
 \description{
 anova p-values grouped by column
