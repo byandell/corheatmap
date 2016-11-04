@@ -1,50 +1,37 @@
 #' adjust values based on factors
 #'
-#' @param object data.frame or tbl_df
 #' @param form formula
+#' @param object data.frame or tbl_df
 #' @param center center on mean if \code{TRUE}
 #' @param group column to group by (or not if \code{NULL})
 #'
 #' @author Brian S Yandell, \email{brian.yandell@@wisc.edu}
 #' @keywords utilities
+#' 
+#' @examples 
+#' lm_resid(mpg ~ wt + cyl, mtcars)
 #'
 #' @export
-lm_resid <- function(object, form, center=TRUE, group=NULL) {
-  if(is.null(group))
-    lm_resid_one(object, form)
-  
-  object %>%
-    ## Do ANOVA by each group level.
-    group_by_(group) %>%
-    lm_resid_one(form, center)
+lm_resid <- function(form, object, center=TRUE, group=NULL) {
+  form <- formula(form)
+  if(is.null(group)) {
+    lm_resid_one(object, form, center)
+  } else {
+    object %>%
+      ## Do ANOVA by each group level.
+      group_by_(group) %>%
+      do(lm_resid_one(form, center)) %>%
+      ungroup
+  }
 }
 lm_resid_one <- function(object, form, center) {
-  full_join(data.frame(names=as.character(seq(nrow(object)))), tmp)
-  
-  do(tidy(resid(lm(form, data=object)))) %>%
-    ## Problem here is that resid for missing data are not included.
-  ## Need to reduce to non-missing data first.
-  ## Append kazu residuals.
-  kazu_resid <- kazu %>%
-    do(tidy(resid(lm(lesion ~ strain, data=.))))
-  kazu$resid <- kazu_resid$x
-  
-  ## Filter to at least two strains and no missing data.
-  rpkg <- rpkg %>%
-    enough_data %>%
-    filter(!is.na(signal))
-  ## Do ANOVA by each EC level.
-  rpkg_resid <- rpkg %>%
-    group_by(EC) %>%
-    do(tidy(resid(lm(signal ~ strain, data=.))))
-  rpkg <- rpkg %>%
-    arrange(EC) %>%
-    mutate(resid = rpkg_resid$x)
-  ## Now correlation of residuals.
-  cor(rpkg %>%
-        select(-signal) %>%
-        spread(EC,resid) %>%
-        select(-mouse,-strain),
-      kazu$resid,
-      use = "pairwise.complete.obs")
+  response <- as.character(form[2])
+  if(center) {
+    offset <- mean(object[[response]])
+  } else {
+    offset <- 0
+  }
+  tidy(resid(lm(form, data=object))) %>%
+    mutate(x = x + offset) %>%
+    setNames(c("names", response))
 }

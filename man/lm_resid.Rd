@@ -4,12 +4,12 @@
 \alias{lm_resid}
 \title{adjust values based on factors}
 \usage{
-lm_resid(object, form, center = TRUE, group = NULL)
+lm_resid(form, object, center = TRUE, group = NULL)
 }
 \arguments{
-\item{object}{data.frame or tbl_df}
-
 \item{form}{formula}
+
+\item{object}{data.frame or tbl_df}
 
 \item{center}{center on mean if \code{TRUE}}
 
@@ -17,6 +17,10 @@ lm_resid(object, form, center = TRUE, group = NULL)
 }
 \description{
 adjust values based on factors
+}
+\examples{
+lm_resid(mpg ~ wt + cyl, mtcars)
+
 }
 \author{
 Brian S Yandell, \email{brian.yandell@wisc.edu}

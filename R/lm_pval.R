@@ -36,7 +36,8 @@ lm_pval <- function(form, object, group=NULL, type=c("drop1","anova"),
     object %>%
       ## Do ANOVA by each group level.
       group_by_(group) %>%
-      do(pval_one(., fit_fn, form, form2, digits))
+      do(pval_one(., fit_fn, form, form2, digits)) %>%
+      ungroup
   }
 }
 pval_one <- function(object, fit_fn, form, form2, digits) {
