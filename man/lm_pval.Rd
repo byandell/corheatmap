@@ -4,13 +4,13 @@
 \alias{lm_pval}
 \title{anova p-values grouped by column}
 \usage{
-lm_pval(object, form, group = NULL, type = c("drop1", "anova"),
+lm_pval(form, object, group = NULL, type = c("drop1", "anova"),
   inter = TRUE, digits = 3)
 }
 \arguments{
-\item{object}{data.frame or tbl_df}
-
 \item{form}{formula}
+
+\item{object}{data.frame or tbl_df}
 
 \item{group}{column to group by (or not if \code{NULL})}
 
@@ -22,6 +22,10 @@ lm_pval(object, form, group = NULL, type = c("drop1", "anova"),
 }
 \description{
 anova p-values grouped by column
+}
+\examples{
+lm_pval(mpg ~ wt + cyl, mtcars)
+
 }
 \author{
 Brian S Yandell, \email{brian.yandell@wisc.edu}
