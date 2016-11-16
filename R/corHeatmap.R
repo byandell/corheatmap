@@ -76,7 +76,7 @@ corHeatmap <- function(input, output, session) {
       xaxis_height = 1
     }
     d3heatmap(dat,
-              scale = "column",
+              scale = "none",
               colors = pal,
               distfun = dist_fun,
               anim_duration = 0,

@@ -109,7 +109,7 @@ plot.cor_matrix <- function(x,
       xaxis_height = 1
     }
     d3heatmap(x,
-              scale = "column",
+              scale = "none",
               colors = palette,
               distfun = dist_fun,
               anim_duration = 0,

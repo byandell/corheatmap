@@ -21,7 +21,14 @@ install.packages("devtools")
 
 On Windows, you also need [Rtools](http://cran.r-project.org/bin/windows/Rtools/). See [https://www.rstudio.com/products/rpackages/devtools/](https://www.rstudio.com/products/rpackages/devtools/) for details.
 
-To install the package `corheatmap`, type the following:
+To install the package `corheatmap`, you will first need a few packages from CRAN:
+
+```
+install.packages(c("d3heatmap", "shiny","RColorBrewer","stringr",
+    "broom","dplyr","tidyr"))
+```
+
+Then type the following:
 
 ```
 library(devtools)
