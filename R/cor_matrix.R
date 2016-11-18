@@ -1,5 +1,7 @@
 #' Correlation-based heatmap
 #'
+#' Transforms data frame into matrix with options to be plotted using d3heatmap or heatmap.
+#' 
 #' @param df data frame with matrix to be plotted
 #' @param row_names column number or name with row names, or vector of row names (default column 1 if no rownames on \code{df})
 #' @param cluster cluster rows and columns if \code{TRUE} (default)
@@ -10,7 +12,7 @@
 #' @keywords utilities
 #'
 #' @examples
-#' cor_matrix(mtcars)
+#' cor_matrix(cor(mtcars))
 #'
 #' @export
 cor_matrix <- function(df, row_names = is.null(rownames(df)), 
@@ -69,8 +71,10 @@ cor_matrix <- function(df, row_names = is.null(rownames(df)),
 #' @param ... other plot parameters (ignored)
 #' 
 #' @examples
-#' plot(cor_matrix(mtcars), d3map=FALSE)
+#' plot(cor_matrix(cor(mtcars)), d3map=FALSE)
 #' 
+#' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#' @importFrom d3heatmap d3heatmap
 #' @export
 #' @method plot cor_matrix
 #' @rdname cor_matrix
@@ -86,8 +90,9 @@ plot.cor_matrix <- function(x,
   ## Set up palettes using RColorBrewer::brewer.pal.info
   category <- match.arg(category, several.ok=TRUE)
   palettes <- 
-    rownames(brewer.pal.info)[brewer.pal.info$colorblind &
-                                brewer.pal.info$category %in% category]
+    rownames(RColorBrewer::brewer.pal.info)[
+      RColorBrewer::brewer.pal.info$colorblind &
+        RColorBrewer::brewer.pal.info$category %in% category]
   palette <- match.arg(palette[1], palettes)
   
   dist_fun <- function(x) dist_cor(x, beta)
@@ -108,11 +113,12 @@ plot.cor_matrix <- function(x,
       labCol <- rep("",ncol(x))
       xaxis_height = 1
     }
-    d3heatmap(x,
+    d3heatmap::d3heatmap(x,
               scale = "none",
               colors = palette,
               distfun = dist_fun,
               anim_duration = 0,
+              revC = FALSE,
               brush_color = "#000000",
               labCol=labCol, labRow=labRow,
               xaxis_height = xaxis_height,
@@ -139,9 +145,10 @@ plot.cor_matrix <- function(x,
     }
     heatmap(x, scale = "none",
             distfun = dist_fun, 
-            na.rm = FALSE,
             margins = margins,
-            col = brewer.pal(brewer.pal.info[palette,"maxcolors"], palette),
+            col = RColorBrewer::brewer.pal(
+              RColorBrewer::brewer.pal.info[palette,"maxcolors"], 
+              palette),
             revC = FALSE,
             Rowv=Rowv, Colv=Colv, labRow=labRow, labCol=labCol)
   }

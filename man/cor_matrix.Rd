@@ -41,7 +41,7 @@ cor_matrix(df, row_names = is.null(rownames(df)), cluster = TRUE,
 \item{beta}{attenuation parameter for clustering (default \code{1})}
 }
 \description{
-Correlation-based heatmap
+Transforms data frame into matrix with options to be plotted using d3heatmap or heatmap.
 }
 \examples{
 cor_matrix(mtcars)

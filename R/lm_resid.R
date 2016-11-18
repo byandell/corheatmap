@@ -11,27 +11,48 @@
 #' @examples 
 #' lm_resid(mpg ~ wt + cyl, mtcars)
 #'
+#' @importFrom dplyr ungroup do group_by_ mutate
+#' @importFrom broom tidy
 #' @export
 lm_resid <- function(form, object, center=TRUE, group=NULL) {
   form <- formula(form)
   if(is.null(group)) {
     lm_resid_one(object, form, center)
   } else {
-    object %>%
-      ## Do ANOVA by each group level.
-      group_by_(group) %>%
-      do(lm_resid_one(form, center)) %>%
-      ungroup
+    dplyr::ungroup(
+      dplyr::do(
+        dplyr::group_by_(object, group), 
+        lm_resid_one(., form, center)))
   }
 }
 lm_resid_one <- function(object, form, center) {
-  response <- as.character(form[2])
+  
   if(center) {
-    offset <- mean(object[[response]])
+    offset <- mean(object[[response]], na.rm = TRUE)
   } else {
     offset <- 0
   }
-  tidy(resid(lm(form, data=object))) %>%
-    mutate(x = x + offset) %>%
-    setNames(c("names", response))
+
+  # Funky way to get response and column names
+  response <- as.character(form[2])
+  col_names <- dimnames(attr(terms(form), "factors"))[[1]]
+  # Is anything in row used for lm fit missing?
+  is_na <- apply(object[,col_names],1, function(x) any(is.na(x)))
+  names(is_na) <- row.names(object)
+  
+  myresid <- function(fit, is_na) {
+    # Fills back out to full data set
+    out <- rep(NA, length(is_na))
+    out[!is_na] <- resid(fit)
+    names(out) <- names(is_na)
+    out
+  }
+  
+  setNames(
+    dplyr::mutate(
+      broom::tidy(
+        myresid(lm(form, data=object), is_na)
+        ),
+      x = x + offset),
+    c("names", response))
 }

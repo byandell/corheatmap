@@ -13,6 +13,9 @@
 #' @examples
 #' lm_pval(mpg ~ wt + cyl, mtcars)
 #'
+#' @importFrom dplyr ungroup do group_by_ mutate select filter
+#' @importFrom tidyr spread
+#' @importFrom broom tidy
 #' @export
 lm_pval <- function(form, object, group=NULL, type=c("drop1","anova"),
                     inter = TRUE, digits = 3) {
@@ -33,11 +36,11 @@ lm_pval <- function(form, object, group=NULL, type=c("drop1","anova"),
   if(is.null(group)) {
     pval_one(object, fit_fn, form, form2, digits)
   } else {
-    object %>%
-      ## Do ANOVA by each group level.
-      group_by_(group) %>%
-      do(pval_one(., fit_fn, form, form2, digits)) %>%
-      ungroup
+    ## Do ANOVA by each group level.
+    dplyr::ungroup(
+      dplyr::do(
+        dplyr::group_by_(object, group),
+        pval_one(., fit_fn, form, form2, digits)))
   }
 }
 pval_one <- function(object, fit_fn, form, form2, digits) {
@@ -50,13 +53,23 @@ pval_one <- function(object, fit_fn, form, form2, digits) {
                          digits)
   
   ## Tidy one-line tbl_df of p-values and SD
-  out <- tidy(fit_fn(fit, fit, test = "F") %>% select(-AIC)) %>%
-    select(term, p.value) %>%
-    filter(!is.na(p.value)) %>%
-    mutate(p.value = signif(p.value, digits)) %>%
-    mutate(term = make.names(term)) %>%
-    spread(term,p.value) %>%
-    mutate(overall = pval_overall)
+  out <- dplyr::mutate(
+    tidyr::spread(
+      dplyr::mutate(
+        dplyr::mutate(
+          dplyr::filter(
+            dplyr::select(
+              broom::tidy(
+                dplyr::select(
+                  fit_fn(fit, fit, test = "F"), 
+                  -AIC)
+                ),
+              term, p.value),
+            !is.na(p.value)),
+          p.value = signif(p.value, digits)),
+        term = make.names(term)),
+      term,p.value),
+    overall = pval_overall)
 
   ## P-value for extra interactions
   if(!is.null(form2)) {

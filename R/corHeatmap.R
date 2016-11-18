@@ -6,26 +6,31 @@
 #' @author Brian S Yandell, \email{brian.yandell@@wisc.edu}
 #' @keywords utilities
 #'
+#' @importFrom RColorBrewer brewer.pal.info brewer.pal
+#' @importFrom shiny selectInput renderUI reactive req
+#' @importFrom d3heatmap d3heatmap renderD3heatmap d3heatmapOutput
+#' @importFrom stringr str_replace
 #' @export
 corHeatmap <- function(input, output, session) {
   ns <- session$ns
   
   ## Set up palettes using RColorBrewer::brewer.pal.info
-  palettes <- reactive({
+  palettes <- shiny::reactive({
     cat <- req(input$category)
     cats <- c(divergent="div",qualitative="qual",sequential="seq")
     if(cat != "all")
       cats <- cats[cat]
-    row.names(brewer.pal.info)[brewer.pal.info$colorblind &
-                                 brewer.pal.info$category %in% cats]
+    row.names(RColorBrewer::brewer.pal.info)[
+      RColorBrewer::brewer.pal.info$colorblind &
+        RColorBrewer::brewer.pal.info$category %in% cats]
   })
-  output$palette <- renderUI({
-    selectInput(ns("palette"), "Palette", palettes())
+  output$palette <- shiny::renderUI({
+    shiny::selectInput(ns("palette"), "Palette", palettes())
   })
   
   ## Read in file with name supplied by user.
-  file_in <- reactive({
-    file_nm <- req(input$file)
+  file_in <- shiny::reactive({
+    file_nm <- shiny::req(input$file)
     
     out <- switch(file_nm$type,
            ".csv" =, "text/csv" =, 'text/comma-separated-values' =
@@ -40,7 +45,7 @@ corHeatmap <- function(input, output, session) {
       return(NULL)
     out
   })
-  file_mx <- reactive({
+  file_mx <- shiny::reactive({
     out <- req(file_in())
     numrow <- as.integer(req(input$numrow))
     
@@ -58,7 +63,7 @@ corHeatmap <- function(input, output, session) {
     dist_cor(x, as.numeric(req(input$beta)))
   }
   ## Interactive D3 Heatmap.
-  output$d3heatmap <- renderD3heatmap({
+  output$d3heatmap <- d3heatmap::renderD3heatmap({
     pal <- req(input$palette)
     dat <- req(file_mx())
     if(input$rowname) {
@@ -75,7 +80,7 @@ corHeatmap <- function(input, output, session) {
       labCol <- rep("",ncol(dat))
       xaxis_height = 1
     }
-    d3heatmap(dat,
+    d3heatmap::d3heatmap(dat,
               scale = "none",
               colors = pal,
               distfun = dist_fun,
@@ -86,16 +91,17 @@ corHeatmap <- function(input, output, session) {
               yaxis_width = yaxis_width,
               dendrogram = if (input$cluster) "both" else "none")
   })
-  output$heatmap <- renderUI({
+  output$heatmap <- shiny::renderUI({
     height <- req(input$height)
-    d3heatmapOutput(ns("d3heatmap"), height = paste0(input$height, "px"))
+    d3heatmap::d3heatmapOutput(ns("d3heatmap"), 
+                               height = paste0(input$height, "px"))
   })
   
   ## Download Heatmap Data.
   output$downloadData <- downloadHandler(
     filename = function() {
       paste0("new_", 
-             str_replace(basename(req(input$file$name)),
+             stringr::str_replace(basename(req(input$file$name)),
                          "\\.[tc]sv", ".csv")) },
     content = function(file) {
       dat <- req(file_mx())
@@ -107,7 +113,7 @@ corHeatmap <- function(input, output, session) {
   ## Download Heatmap Plot.
   output$downloadPlot <- downloadHandler(
     filename = function() {
-      str_replace(basename(req(input$file$name)), 
+      stringr::str_replace(basename(req(input$file$name)), 
                   "\\.[tc]sv", ".pdf") },
     content = function(file) {
       dat <- req(file_mx())
@@ -135,50 +141,55 @@ corHeatmap <- function(input, output, session) {
               distfun = dist_fun, 
               na.rm = FALSE,
               margins = margins,
-              col = brewer.pal(brewer.pal.info[pal,"maxcolors"], pal),
+              col = RColorBrewer::brewer.pal(
+                RColorBrewer::brewer.pal.info[pal,"maxcolors"], 
+                pal),
               Rowv=Rowv, Colv=Colv, labRow=labRow, labCol=labCol)
       dev.off()
     }
   )
 }
 #' @param id session identifier
+#' @importFrom shiny tagList fluidRow column fileInput textInput 
+#' selectInput checkboxInput uiOutput downloadButton NS
 #' @export
 #' @rdname corHeatmap
 corHeatmapUI <- function(id) {
-  ns <- NS(id)
-  tagList(
-    fluidRow(
-      fileInput(ns("file"), "Choose File", 
+  ns <- shiny::NS(id)
+  shiny::tagList(
+    shiny::fluidRow(
+      shiny::fileInput(ns("file"), "Choose File", 
                 accept=c(".csv",".tsv",".xlsx",".xls")),
-      fluidRow(
-        column(6, textInput(ns("numrow"), "Hi Var Rows", "200")),
-        column(6, selectInput(ns("height"), "Height", 
+      shiny::fluidRow(
+        shiny::column(6, shiny::textInput(ns("numrow"), "Hi Var Rows", "200")),
+        shiny::column(6, shiny::selectInput(ns("height"), "Height", 
                   c("400","500","600","700","800","900","1000"),
                   "600"))),
-      fluidRow(
-        column(6, checkboxInput(ns("rowname"), "Row Names", TRUE)),
-        column(6, checkboxInput(ns("colname"), "Col Names", TRUE))),
-      fluidRow(
-        column(6, checkboxInput(ns("cluster"), "Cluster", TRUE)),
-        column(6, selectInput(ns("beta"), "(1-cor)^beta", 
+      shiny::fluidRow(
+        shiny::column(6, shiny::checkboxInput(ns("rowname"), "Row Names", TRUE)),
+        shiny::column(6, shiny::checkboxInput(ns("colname"), "Col Names", TRUE))),
+      shiny::fluidRow(
+        shiny::column(6, shiny::checkboxInput(ns("cluster"), "Cluster", TRUE)),
+        shiny::column(6, shiny::selectInput(ns("beta"), "(1-cor)^beta", 
                               as.character(c(.1,.2,.3,.5,1,2,3,4,5,6)),
                               "1"))),
-      fluidRow(
-        column(6, uiOutput(ns("palette"))),
-        column(6, selectInput(ns("category"), "Palette Type", 
+      shiny::fluidRow(
+        shiny::column(6, shiny::uiOutput(ns("palette"))),
+        shiny::column(6, shiny::selectInput(ns("category"), "Palette Type", 
                     c("sequential","divergent","qualitative")))),
-      fluidRow(
-        column(6, downloadButton(ns("downloadData"), "CSV")),
-        column(6, downloadButton(ns("downloadPlot"), "Plot"))))
+      shiny::fluidRow(
+        shiny::column(6, shiny::downloadButton(ns("downloadData"), "CSV")),
+        shiny::column(6, shiny::downloadButton(ns("downloadPlot"), "Plot"))))
   )
 }
 #' @export
+#' @importFrom shiny tagList fluidRow uiOutput NS
 #' @rdname corHeatmap
 corHeatmapOutput <- function(id) {
-  ns <- NS(id)
-  tagList(
-    fluidRow(
-      uiOutput(ns("heatmap"))
+  ns <- shiny::NS(id)
+  shiny::tagList(
+    shiny::fluidRow(
+      shiny::uiOutput(ns("heatmap"))
     )
   )
 }
