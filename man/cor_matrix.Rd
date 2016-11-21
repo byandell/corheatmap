@@ -11,7 +11,7 @@ cor_matrix(df, row_names = is.null(rownames(df)), cluster = TRUE,
 \method{plot}{cor_matrix}(x, rowname = TRUE, colname = TRUE,
   cluster = attr(x, "cluster"), beta = attr(x, "beta"),
   category = c("div", "seq", "qual"), d3map = interactive(),
-  palette = palettes, ...)
+  palette = palettes, scale = c("none", "row", "column"), ...)
 }
 \arguments{
 \item{df}{data frame with matrix to be plotted}
@@ -46,7 +46,8 @@ Transforms data frame into matrix with options to be plotted using d3heatmap or 
 \examples{
 cor_matrix(mtcars)
 
-plot(cor_matrix(mtcars), d3map=FALSE)
+plot(cor_matrix(mtcars), scale="column", d3map=FALSE)
+plot(cor_matrix(cor(mtcars)), d3map=FALSE)
 
 }
 \author{

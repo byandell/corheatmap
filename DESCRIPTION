@@ -1,8 +1,8 @@
 Package: corheatmap
 Type: Package
 Title: correlation based heatmap
-Version: 0.2.6
-Date: 2016-11-17
+Version: 0.2.7
+Date: 2016-11-21
 Author: Brian S. Yandell and Xiaodu Pan
 Maintainer: Brian S. Yandell <byandell@wisc.edu>
 Description: Correlation based heatmap with Shiny interface

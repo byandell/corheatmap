@@ -49,7 +49,7 @@ corHeatmap <- function(input, output, session) {
     out <- req(file_in())
     numrow <- as.integer(req(input$numrow))
     
-    out <- corheatmap(out, row_names = 1, 
+    out <- cor_matrix(out, row_names = 1, 
                   cluster = FALSE, beta = 1, num_rows = numrow)
     
     if(!nrow(out) | is.null(out)) {

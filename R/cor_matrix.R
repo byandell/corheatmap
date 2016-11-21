@@ -12,7 +12,7 @@
 #' @keywords utilities
 #'
 #' @examples
-#' cor_matrix(cor(mtcars))
+#' cor_matrix(mtcars)
 #'
 #' @export
 cor_matrix <- function(df, row_names = is.null(rownames(df)), 
@@ -71,6 +71,7 @@ cor_matrix <- function(df, row_names = is.null(rownames(df)),
 #' @param ... other plot parameters (ignored)
 #' 
 #' @examples
+#' plot(cor_matrix(mtcars), scale="column", d3map=FALSE)
 #' plot(cor_matrix(cor(mtcars)), d3map=FALSE)
 #' 
 #' @importFrom RColorBrewer brewer.pal.info brewer.pal
@@ -85,8 +86,10 @@ plot.cor_matrix <- function(x,
                         category = c("div","seq","qual"),
                         d3map = interactive(),
                         palette = palettes, 
+                        scale = c("none", "row", "column"),
                         ...) {
   
+  scale = match.arg(scale)
   ## Set up palettes using RColorBrewer::brewer.pal.info
   category <- match.arg(category, several.ok=TRUE)
   palettes <- 
@@ -114,7 +117,7 @@ plot.cor_matrix <- function(x,
       xaxis_height = 1
     }
     d3heatmap::d3heatmap(x,
-              scale = "none",
+              scale = scale,
               colors = palette,
               distfun = dist_fun,
               anim_duration = 0,
@@ -143,7 +146,7 @@ plot.cor_matrix <- function(x,
       labCol <- NA
       margins[1] <- 0
     }
-    heatmap(x, scale = "none",
+    heatmap(x, scale = scale,
             distfun = dist_fun, 
             margins = margins,
             col = RColorBrewer::brewer.pal(
