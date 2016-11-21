@@ -22,7 +22,10 @@ cor_matrix <- function(df, row_names = is.null(rownames(df)),
   if(!is.null(row_names)) {
     if(length(row_names) == 1) {
       if(row_names != 0) {
-        rownames(df) <- df[,row_names]
+        tmp <- as.character(df[,row_names])
+        if(any(duplicated(tmp)))
+          tmp <- paste(seq_along(tmp), tmp, sep = "_")
+        rownames(df) <- tmp
         df <- df[,-row_names]
       }
     } else {
