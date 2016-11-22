@@ -27,6 +27,7 @@ lm_resid <- function(form, object, center=TRUE, group=NULL) {
 }
 lm_resid_one <- function(object, form, center) {
   
+  response <- as.character(form[2])
   if(center) {
     offset <- mean(object[[response]], na.rm = TRUE)
   } else {
@@ -34,7 +35,6 @@ lm_resid_one <- function(object, form, center) {
   }
 
   # Funky way to get response and column names
-  response <- as.character(form[2])
   col_names <- dimnames(attr(terms(form), "factors"))[[1]]
   # Is anything in row used for lm fit missing?
   is_na <- apply(object[,col_names],1, function(x) any(is.na(x)))
